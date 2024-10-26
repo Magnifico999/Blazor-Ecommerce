@@ -1,0 +1,13 @@
+﻿﻿img {
+    max-height: 100px;
+    max-width: 100px;
+}
+
+.table {
+    background-color: #0000;
+    font-weight: bold;
+}
+.dark-mode .table {
+    color: #dfdfdf; 
+}
+

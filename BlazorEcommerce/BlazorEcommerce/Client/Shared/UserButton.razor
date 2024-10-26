@@ -1,0 +1,73 @@
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICartService CartService
+
+
+<div class="dropdown" @onclick:preventDefault>
+    <button @onclick="ToggleUserMenu"
+            class="btn btn-secondary dropdown-toggle user-button">
+        <i class="oi oi-person"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-right @UserMenuCssClass">
+        <AuthorizeView>
+            <Authorized>
+                <a href="profile" class="dropdown-item" @onclick="NavigateToProfile">Profile</a>
+                <a href="orders" class="dropdown-item" @onclick="NavigateToOrders">Orders</a>
+                <hr />
+                <AdminMenu />
+                <button class="dropdown-item" @onclick="Logout">Logout</button>
+            </Authorized>
+            <NotAuthorized>
+                <a href="login?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="dropdown-item" @onclick="NavigateToLogin">Login</a>
+                <a href="register" class="dropdown-item" @onclick="NavigateToRegister">Register</a>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+    private bool showUserMenu = false;
+
+    private string UserMenuCssClass => showUserMenu ? "show-menu" : null;
+
+
+    private void ToggleUserMenu()
+    {
+        showUserMenu = !showUserMenu;
+    }
+    private async Task NavigateToProfile()
+    {
+        showUserMenu = false;
+        await Task.Delay(200);
+        NavigationManager.NavigateTo("/profile");
+    }
+    private async Task NavigateToOrders()
+    {
+        showUserMenu = false;
+        await Task.Delay(200);
+        NavigationManager.NavigateTo("/orders");
+    }
+
+    private async Task NavigateToRegister()
+    {
+        showUserMenu = false;
+        await Task.Delay(200);
+        NavigationManager.NavigateTo("/register");
+    }
+    private async Task NavigateToLogin()
+    {
+        showUserMenu = false;
+        await Task.Delay(200);
+        NavigationManager.NavigateTo("/login");
+    }
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("authToken");
+        await CartService.GetCartItemsCount();
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        NavigationManager.NavigateTo("/");
+    }
+
+}

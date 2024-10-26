@@ -1,0 +1,134 @@
+﻿@inject ICategoryService CategoryService
+@implements IDisposable
+<style>
+    .light-mode {
+        background-color: #ffffff;
+        color: #000000;
+    }
+
+    .dark-mode {
+        background-color: #222222;
+        color: #ffffff;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        margin-left: auto;
+        padding-bottom: 0.5rem;
+        padding-top: 0.9rem;
+        margin-right: 1rem;
+    }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+</style>
+
+<div class="top-row ps-3 navbar navbar-dark navbar-toggler-wrapper">
+    <div class="container-fluid">
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-nav">
+        <div class="nav-item px-2">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                 Home
+            </NavLink>
+        </div>
+
+        @foreach (var category in CategoryService.Categories)
+        {
+            <div class="nav-item px-2">
+                <NavLink class="nav-link" href="@category.Url">
+                     @category.Name
+                </NavLink>
+            </div>
+        }
+
+        <div class="switch px-2" >
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+       
+    </nav>
+</div>
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CategoryService.GetCategories();
+        CategoryService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CategoryService.OnChange -= StateHasChanged;
+    }
+}
+<script>
+    const modeToggle = document.getElementById('mode-toggle');
+    const page = document.querySelector('.page');
+
+    modeToggle.addEventListener('change', function () {
+        if (modeToggle.checked) {
+            page.classList.add('dark-mode');
+            page.classList.remove('light-mode');
+        } else {
+            page.classList.add('light-mode');
+            page.classList.remove('dark-mode');
+        }
+    });
+</script>
